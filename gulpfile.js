@@ -85,27 +85,36 @@ function startwatch() {
 	watch(['app/**/*.js', '!app/**/*.min.js']);
 	watch('app/assets/style/**/*.scss', styles);
 	watch('app/**/*.html').on('change', includeHTML);
+	watch('app/*.html').on('change', injectSVG);
 	watch('app/**/*.html').on('change', browserSync.reload);
 	watch('app/assets/images/src/**/*', images);
-	watch('app/assets/images/icons/*.svg', svgStoreTask)
+	watch('app/assets/images/icons/sprites/*.svg', generateSVG)
 }
 
-//TODO: fix bag with svgStore and Inject
+function generateSVG() {
+  return src("app/assets/images/icons/sprites/*.svg")
+    .pipe(svgstore())
+    .pipe(dest("app/assets/images/icons/"));
+}
 
-function svgStoreTask() {
-	const svgs = src('app/assets/images/icons/*.svg')
-	  .pipe(svgstore({ inlineSvg: true }));
-  
-	function fileContents (filePath, file) {
-	  return file.contents.toString();
-	}
-  
-	return src('app/assets/images/icons/inline-svg.html')
-	  .pipe(inject(svgs, { transform: fileContents }))
-	  .pipe(dest('app/assets/images/sprite/'));
+function injectSVG() {
+  	const svgs = src("app/assets/images/icons/sprites.svg");
+
+	return src("app/*.html")
+    .pipe(
+      inject(svgs, {
+        transform: (filePath, file) => {
+          // return file contents as string
+          return file.contents.toString();
+        },
+      })
+    )
+    .pipe(dest("app/"));
 }
   
-exports.svgstore = svgStoreTask;
+exports.generateSVG = generateSVG;
+
+exports.injectSVG = injectSVG;
 
 exports.browsersync = browsersync;
 
@@ -115,6 +124,6 @@ exports.images = images;
 
 exports.cleanimg = cleanimg;
 
-exports.build = series(cleandist, styles, images, includeHTML, buildcopy);
+exports.build = series(cleandist, styles, images, includeHTML, generateSVG, injectSVG, buildcopy);
 
-exports.default = parallel(styles, includeHTML, svgStoreTask, browsersync, startwatch);
+exports.default = parallel(styles, includeHTML, generateSVG, injectSVG, browsersync, startwatch);

@@ -1,20 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title></title>
+    <title>Filesystem</title>
 
-    @@include('components/metas.html')
+    @@include('../components/metas.html')
 
-    <link rel="stylesheet" href="assets/style/main.css">
- 
+    <link rel="stylesheet" href="assets/style/main.css">    
 </head>
 <body>
     <div class="hidden-svg-sprite">
-       <!-- inject:svg --><!-- endinject -->
+        <!-- inject:svg --><!-- endinject -->
     </div>
-
     <main class="main">
-
+        <!-- Example of button use-->
+        @@include('../components/button.html', {
+            'href': '#',
+            'class': 'default-button',
+            'text': 'press',
+            'prepend': '<svg width="18px" height="18px" class="icon"><use xlink:href="#icon"></use></svg>',
+            'append': '',
+        })
     </main>
 
     <script src="assets/js/functions.js"></script>
